@@ -1,4 +1,4 @@
 ./Cliente/Default
 ./Servidor/Default
-./*/.cproject
-./*/.project
+*.cproject
+*.project
