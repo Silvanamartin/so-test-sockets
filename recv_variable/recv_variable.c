@@ -22,13 +22,16 @@ int recv_variable(int socketReceptor, void* buffer) {
 
 // Primero: Recibir el header para saber cuando ocupa el payload.
 	if (recv(socketReceptor, &header, sizeof(header), MSG_WAITALL) <= 0)
-		return 0;
+		return -1;
 
 // Segundo: Alocar memoria suficiente para el payload.
 	buffer = malloc(header.length);
 
 // Tercero: Recibir el payload.
-	bytesRecibidos = recv(socketReceptor, buffer, header.length, MSG_WAITALL);
+	if((bytesRecibidos = recv(socketReceptor, buffer, header.length, MSG_WAITALL)) < 0){
+		free(buffer);
+		return -1;
+	}
 
 	return bytesRecibidos;
 
