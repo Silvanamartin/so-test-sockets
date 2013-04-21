@@ -24,33 +24,46 @@ int main() {
 // AF_INET: Socket de internet IPv4
 // SOCK_STREAM: Orientado a la conexion, TCP
 // 0: Usar protocolo por defecto para AF_INET-SOCK_STREAM: Protocolo TCP/IPv4
-	if ((unSocket = socket(AF_INET, SOCK_STREAM, 0)) != 0) {
+	if ((unSocket = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+		perror("Error al crear socket");
+		return EXIT_FAILURE;
+	}
 
-		socketInfo.sin_family = AF_INET;
-		socketInfo.sin_addr.s_addr = inet_addr(DIRECCION );
-		socketInfo.sin_port = htons(PUERTO);
+	socketInfo.sin_family = AF_INET;
+	socketInfo.sin_addr.s_addr = inet_addr(DIRECCION);
+	socketInfo.sin_port = htons(PUERTO);
 
 // Conectar el socket con la direccion 'socketInfo'.
-		if (connect(unSocket, (struct sockaddr*) &socketInfo,
-				sizeof(socketInfo)) == 0) {
+	if (connect(unSocket, (struct sockaddr*) &socketInfo, sizeof(socketInfo))
+			!= 0) {
+		perror("Error al conectar socket");
+		return EXIT_FAILURE;
+	}
 
-			printf("Conectado!\n");
-			scanf("%s", buffer);
+	printf("Conectado!\n");
 
-// Enviar los datos leidos por teclado a traves del socket.
-			if (send(unSocket, buffer, BUFF_SIZE, 0) >= 0) {
-				printf("Datos enviados!\n");
-			} else {
-				perror("Error al enviar datos");
+	while (1) {
+
+		scanf("%s", buffer);
+
+		// Enviar los datos leidos por teclado a traves del socket.
+		if (send(unSocket, buffer, strlen(buffer), 0) >= 0) {
+			printf("Datos enviados!\n");
+
+			if (strcmp(buffer, "fin") == 0) {
+
+				printf("Cliente cerrado correctamente.\n");
+				break;
+
 			}
 
 		} else {
-			perror("Error al conectar socket");
+			perror("Error al enviar datos. Server no encontrado.\n");
+			break;
 		}
-	} else {
-		perror("Error al crear socket");
 	}
 
+	close(unSocket);
 
 	return EXIT_SUCCESS;
 
